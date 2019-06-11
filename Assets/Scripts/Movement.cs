@@ -175,7 +175,9 @@ public class Movement : MonoBehaviour
     {
         _camera.transform.DOComplete();
         _camera.transform.DOShakePosition(.2f, .5f, 14, 90, false, true);
-        rippleEffect.Emit(_camera.WorldToViewportPoint(transform.position));
+        
+        if (rippleEffect)
+            rippleEffect.Emit(_camera.WorldToViewportPoint(transform.position));
 
         hasDashed = true;
 
@@ -188,7 +190,9 @@ public class Movement : MonoBehaviour
 
     IEnumerator DashWait()
     {
-        ghostTrail.ShowGhost();
+        if (ghostTrail)
+            ghostTrail.ShowGhost();
+        
         StartCoroutine(GroundDash());
         DOVirtual.Float(14, 0, .8f, RigidbodyDrag);
 
