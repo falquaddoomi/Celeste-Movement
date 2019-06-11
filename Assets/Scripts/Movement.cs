@@ -4,10 +4,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
 
-[RequireComponent(typeof(Collision))]
+[RequireComponent(typeof(ICollision))]
 public class Movement : MonoBehaviour
 {
-    private Collision coll;
+    private ICollision coll;
     
     [HideInInspector]
     public Rigidbody2D rb;
@@ -51,7 +51,7 @@ public class Movement : MonoBehaviour
     void Start()
     {
         _camera = Camera.main;
-        coll = GetComponent<Collision>();
+        coll = GetComponent<ICollision>();
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponentInChildren<AnimationScript>();
         betterJumping = GetComponent<BetterJumping>();

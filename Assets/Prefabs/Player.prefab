@@ -127,7 +127,7 @@ GameObject:
   - component: {fileID: 1445098384588564175}
   - component: {fileID: 1445098384588564176}
   - component: {fileID: 1445098384588564179}
-  - component: {fileID: 1445098384588564178}
+  - component: {fileID: 5850439381467171301}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -232,7 +232,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   fallMultiplier: 3
   lowJumpMultiplier: 8
---- !u!114 &1445098384588564178
+--- !u!114 &5850439381467171301
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -241,21 +241,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 1445098384588564172}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 406198e895886ed45b8b2053e80bd604, type: 3}
+  m_Script: {fileID: 11500000, guid: abc025eab67549a78cc724041a037527, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   groundLayer:
     serializedVersion: 2
     m_Bits: 256
-  onGround: 0
-  onWall: 0
-  onRightWall: 0
-  onLeftWall: 0
-  wallSide: 0
-  collisionRadius: 0.1
-  bottomOffset: {x: 0, y: -0.79}
-  rightOffset: {x: 0.5, y: -0.33}
-  leftOffset: {x: -0.5, y: -0.33}
 --- !u!1 &1445098384793263634
 GameObject:
   m_ObjectHideFlags: 0

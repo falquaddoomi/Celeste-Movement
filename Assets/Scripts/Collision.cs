@@ -2,19 +2,17 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Collision : MonoBehaviour
+public class Collision : MonoBehaviour, ICollision
 {
 
     [Header("Layers")]
     public LayerMask groundLayer;
-    
-    [Space]
 
-    public bool onGround;
-    public bool onWall;
-    public bool onRightWall;
-    public bool onLeftWall;
-    public int wallSide;
+    public bool onGround { get; private set; }
+    public bool onWall { get; private set; }
+    public bool onRightWall { get; private set; }
+    public bool onLeftWall { get; private set; }
+    public int wallSide { get; private set; }
 
     [Space]
     [Header("Collision")]
@@ -28,11 +26,9 @@ public class Collision : MonoBehaviour
     {
         var position = transform.position;
         onGround = Physics2D.OverlapCircle((Vector2)position + bottomOffset, collisionRadius, groundLayer);
-        onWall = Physics2D.OverlapCircle((Vector2)position + rightOffset, collisionRadius, groundLayer) 
-            || Physics2D.OverlapCircle((Vector2)position + leftOffset, collisionRadius, groundLayer);
-
         onRightWall = Physics2D.OverlapCircle((Vector2)position + rightOffset, collisionRadius, groundLayer);
         onLeftWall = Physics2D.OverlapCircle((Vector2)position + leftOffset, collisionRadius, groundLayer);
+        onWall = onRightWall || onLeftWall;
 
         wallSide = onRightWall ? -1 : 1;
     }
