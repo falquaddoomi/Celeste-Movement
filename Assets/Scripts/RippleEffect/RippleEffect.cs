@@ -66,30 +66,37 @@ public class RippleEffect : MonoBehaviour
     Material material;
     float timer;
     int dropCount;
+    private Camera c;
+    private static readonly int GradTex = Shader.PropertyToID("_GradTex");
+    private static readonly int Drop1 = Shader.PropertyToID("_Drop1");
+    private static readonly int Drop2 = Shader.PropertyToID("_Drop2");
+    private static readonly int Drop3 = Shader.PropertyToID("_Drop3");
+    private static readonly int Reflection = Shader.PropertyToID("_Reflection");
+    private static readonly int Params1 = Shader.PropertyToID("_Params1");
+    private static readonly int Params2 = Shader.PropertyToID("_Params2");
 
     void UpdateShaderParameters()
     {
-        var c = GetComponent<Camera>();
+        material.SetVector(Drop1, droplets[0].MakeShaderParameter(c.aspect));
+        material.SetVector(Drop2, droplets[1].MakeShaderParameter(c.aspect));
+        material.SetVector(Drop3, droplets[2].MakeShaderParameter(c.aspect));
 
-        material.SetVector("_Drop1", droplets[0].MakeShaderParameter(c.aspect));
-        material.SetVector("_Drop2", droplets[1].MakeShaderParameter(c.aspect));
-        material.SetVector("_Drop3", droplets[2].MakeShaderParameter(c.aspect));
-
-        material.SetColor("_Reflection", reflectionColor);
-        material.SetVector("_Params1", new Vector4(c.aspect, 1, 1 / waveSpeed, 0));
-        material.SetVector("_Params2", new Vector4(1, 1 / c.aspect, refractionStrength, reflectionStrength));
+        material.SetColor(Reflection, reflectionColor);
+        material.SetVector(Params1, new Vector4(c.aspect, 1, 1 / waveSpeed, 0));
+        material.SetVector(Params2, new Vector4(1, 1 / c.aspect, refractionStrength, reflectionStrength));
     }
 
-    void Awake()
-    {
+    void Awake() {
+        c = GetComponent<Camera>();
+        
         droplets = new Droplet[3];
         droplets[0] = new Droplet();
         droplets[1] = new Droplet();
         droplets[2] = new Droplet();
 
-        gradTexture = new Texture2D(2048, 1, TextureFormat.Alpha8, false);
-        gradTexture.wrapMode = TextureWrapMode.Clamp;
-        gradTexture.filterMode = FilterMode.Bilinear;
+        gradTexture = new Texture2D(2048, 1, TextureFormat.Alpha8, false) {
+            wrapMode = TextureWrapMode.Clamp, filterMode = FilterMode.Bilinear
+        };
         for (var i = 0; i < gradTexture.width; i++)
         {
             var x = 1.0f / gradTexture.width * i;
@@ -98,9 +105,8 @@ public class RippleEffect : MonoBehaviour
         }
         gradTexture.Apply();
 
-        material = new Material(shader);
-        material.hideFlags = HideFlags.DontSave;
-        material.SetTexture("_GradTex", gradTexture);
+        material = new Material(shader) {hideFlags = HideFlags.DontSave};
+        material.SetTexture(GradTex, gradTexture);
 
         UpdateShaderParameters();
     }

@@ -10,7 +10,11 @@ public class Movement : MonoBehaviour
     [HideInInspector]
     public Rigidbody2D rb;
     private AnimationScript anim;
-
+    private BetterJumping betterJumping;
+    private RippleEffect rippleEffect;
+    private GhostTrail ghostTrail;
+    private Camera _camera;
+    
     [Space]
     [Header("Stats")]
     public float speed = 10;
@@ -44,9 +48,14 @@ public class Movement : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        _camera = Camera.main;
         coll = GetComponent<Collision>();
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponentInChildren<AnimationScript>();
+        betterJumping = GetComponent<BetterJumping>();
+
+        rippleEffect = FindObjectOfType<RippleEffect>();
+        ghostTrail = FindObjectOfType<GhostTrail>();
     }
 
     // Update is called once per frame
@@ -78,14 +87,15 @@ public class Movement : MonoBehaviour
         if (coll.onGround && !isDashing)
         {
             wallJumped = false;
-            GetComponent<BetterJumping>().enabled = true;
+            betterJumping.enabled = true;
         }
         
         if (wallGrab && !isDashing)
         {
             rb.gravityScale = 0;
+            
             if(x > .2f || x < -.2f)
-            rb.velocity = new Vector2(rb.velocity.x, 0);
+                rb.velocity = new Vector2(rb.velocity.x, 0);
 
             float speedModifier = y > 0 ? .5f : 1;
 
@@ -166,9 +176,9 @@ public class Movement : MonoBehaviour
 
     private void Dash(float x, float y)
     {
-        Camera.main.transform.DOComplete();
-        Camera.main.transform.DOShakePosition(.2f, .5f, 14, 90, false, true);
-        FindObjectOfType<RippleEffect>().Emit(Camera.main.WorldToViewportPoint(transform.position));
+        _camera.transform.DOComplete();
+        _camera.transform.DOShakePosition(.2f, .5f, 14, 90, false, true);
+        rippleEffect.Emit(_camera.WorldToViewportPoint(transform.position));
 
         hasDashed = true;
 
@@ -183,13 +193,13 @@ public class Movement : MonoBehaviour
 
     IEnumerator DashWait()
     {
-        FindObjectOfType<GhostTrail>().ShowGhost();
+        ghostTrail.ShowGhost();
         StartCoroutine(GroundDash());
         DOVirtual.Float(14, 0, .8f, RigidbodyDrag);
 
         dashParticle.Play();
         rb.gravityScale = 0;
-        GetComponent<BetterJumping>().enabled = false;
+        betterJumping.enabled = false;
         wallJumped = true;
         isDashing = true;
 
@@ -197,7 +207,7 @@ public class Movement : MonoBehaviour
 
         dashParticle.Stop();
         rb.gravityScale = 3;
-        GetComponent<BetterJumping>().enabled = true;
+        betterJumping.enabled = true;
         wallJumped = false;
         isDashing = false;
     }
@@ -235,14 +245,12 @@ public class Movement : MonoBehaviour
         if (!canMove)
             return;
 
-        bool pushingWall = false;
-        if((rb.velocity.x > 0 && coll.onRightWall) || (rb.velocity.x < 0 && coll.onLeftWall))
-        {
-            pushingWall = true;
-        }
-        float push = pushingWall ? 0 : rb.velocity.x;
+        var velocity = rb.velocity;
+        bool pushingWall = (velocity.x > 0 && coll.onRightWall) || (velocity.x < 0 && coll.onLeftWall);
+        float push = pushingWall ? 0 : velocity.x;
 
-        rb.velocity = new Vector2(push, -slideSpeed);
+        velocity = new Vector2(push, -slideSpeed);
+        rb.velocity = velocity;
     }
 
     private void Walk(Vector2 dir)
@@ -253,14 +261,10 @@ public class Movement : MonoBehaviour
         if (wallGrab)
             return;
 
-        if (!wallJumped)
-        {
-            rb.velocity = new Vector2(dir.x * speed, rb.velocity.y);
-        }
-        else
-        {
-            rb.velocity = Vector2.Lerp(rb.velocity, (new Vector2(dir.x * speed, rb.velocity.y)), wallJumpLerp * Time.deltaTime);
-        }
+        var velocity = rb.velocity;
+        rb.velocity = !wallJumped
+            ? new Vector2(dir.x * speed, velocity.y)
+            : Vector2.Lerp(velocity, (new Vector2(dir.x * speed, velocity.y)), wallJumpLerp * Time.deltaTime);
     }
 
     private void Jump(Vector2 dir, bool wall)
@@ -268,8 +272,10 @@ public class Movement : MonoBehaviour
         slideParticle.transform.parent.localScale = new Vector3(ParticleSide(), 1, 1);
         ParticleSystem particle = wall ? wallJumpParticle : jumpParticle;
 
-        rb.velocity = new Vector2(rb.velocity.x, 0);
-        rb.velocity += dir * jumpForce;
+        var velocity = rb.velocity;
+        velocity = new Vector2(velocity.x, 0);
+        velocity += dir * jumpForce;
+        rb.velocity = velocity;
 
         particle.Play();
     }
