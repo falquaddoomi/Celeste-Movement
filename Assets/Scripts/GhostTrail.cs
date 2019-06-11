@@ -26,9 +26,9 @@ public class GhostTrail : MonoBehaviour
         for (int i = 0; i < ghostsParent.childCount; i++)
         {
             Transform currentGhost = ghostsParent.GetChild(i);
-            s.AppendCallback(()=> currentGhost.position = move.transform.position);
+            s.AppendCallback(() => currentGhost.position = move.transform.position);
             s.AppendCallback(() => currentGhost.GetComponent<SpriteRenderer>().flipX = anim.sr.flipX);
-            s.AppendCallback(()=>currentGhost.GetComponent<SpriteRenderer>().sprite = anim.sr.sprite);
+            s.AppendCallback(() => currentGhost.GetComponent<SpriteRenderer>().sprite = anim.sr.sprite);
             s.Append(currentGhost.GetComponent<SpriteRenderer>().material.DOColor(trailColor, 0));
             s.AppendCallback(() => FadeSprite(currentGhost));
             s.AppendInterval(ghostInterval);
